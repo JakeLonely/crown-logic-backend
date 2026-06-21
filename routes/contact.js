@@ -1,7 +1,6 @@
 import express from 'express';
 import Joi from 'joi';
 import { supabase } from '../server.js';
-import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
@@ -26,20 +25,17 @@ router.post('/', async (req, res) => {
     }
 
     const { name, email, company, message } = value;
-    const id = uuidv4();
 
     // Store in Supabase
     const { data, error: dbError } = await supabase
       .from('submissions')
       .insert([
         {
-          id,
           name,
           email,
           company: company || null,
           message,
-          status: 'new',
-          created_at: new Date().toISOString()
+          status: 'new'
         }
       ])
       .select();
@@ -55,7 +51,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Thank you for contacting Crown Logic. We will be in touch shortly.',
-      id
+      id: data[0]?.id
     });
 
   } catch (err) {
